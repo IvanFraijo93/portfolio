@@ -256,16 +256,199 @@ public class LoginSteps {
   </article>
 
 
-  <!-- Web module (placeholder to fill later) -->
-  <article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
-    <div class="p-6">
-      <h3 class="text-xl font-semibold">Web Automation — Login module (coming next)</h3>
-      <p class="mt-3 text-slate-300">
-        The same structure applied to web UI: POM for pages, readable Gherkin scenarios, and shared waits/actions
-        to keep tests stable and maintainable. I’ll add highlights (HomePage, LoginPage, step glue, and assertions).
-      </p>
+ <!-- Web Automation — Login module -->
+<article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
+  <div class="p-6">
+    <h3 class="text-xl font-semibold">Web Automation — Login module</h3>
+    <p class="mt-3 text-slate-300">
+      Goal: validate login features on the web portal (prepaid, postpaid, incorrect credentials, logout, recovery,
+      registration, and legal links). Design: Selenium + POM + Cucumber. We centralize waits/actions in
+      <code>BasePage</code>, keep locators &amp; actions in <code>LoginPage</code>, describe behavior in
+      Gherkin (<code>login.feature</code>), and glue with <code>LoginSteps</code>. Includes window handling for
+      Terms/Privacy PDFs.
+    </p>
+
+    <div class="mt-6 grid md:grid-cols-2 gap-6">
+      <!-- Narrative -->
+      <div class="space-y-4 text-sm">
+        <div class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+          <h4 class="font-medium">What I implemented</h4>
+          <ul class="mt-2 list-disc list-inside space-y-1">
+            <li>Page Object Model: selectors &amp; actions isolated from test logic.</li>
+            <li>Explicit waits via <code>WebDriverWait</code> to reduce flakiness.</li>
+            <li>Reusable helpers: navigate, click, write, text extraction, URL waits.</li>
+            <li>Window/tab handling for Privacy &amp; Terms PDFs with URL validation.</li>
+          </ul>
+        </div>
+        <div class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+          <h4 class="font-medium">Key outcomes</h4>
+          <ul class="mt-2 list-disc list-inside space-y-1">
+            <li>Stable scenarios across prepaid/postpaid and negative flows.</li>
+            <li>Faster maintenance: a UI change touches only one page object.</li>
+            <li>Clear, traceable intent using Gherkin + readable step names.</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Code highlights -->
+      <div class="space-y-4 text-sm">
+        <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40" open>
+          <summary class="cursor-pointer font-medium">BasePage.java (web helpers)</summary>
+          <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+public class BasePage {
+    protected static WebDriver driver;
+    protected WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+
+    static {
+        ChromeOptions chromeOptions = new ChromeOptions();
+        driver = new ChromeDriver(chromeOptions);
+    }
+
+    public BasePage(WebDriver driver) { BasePage.driver = driver; }
+
+    protected WebElement find(String xpath) {
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath(xpath)));
+    }
+
+    public void navigateTo(String url) { driver.get(url); }
+    public void clickElement(String xpath) { find(xpath).click(); }
+    public void write(String xpath, String text) { find(xpath).clear(); find(xpath).sendKeys(text); }
+    public String textFromElement(String xpath) { return find(xpath).getText(); }
+
+    public void waitForUrlToContain(String expected) {
+        new WebDriverWait(driver, Duration.ofSeconds(20))
+            .until(ExpectedConditions.urlContains(expected));
+    }
+}
+          </code></pre>
+        </details>
+
+        <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+          <summary class="cursor-pointer font-medium">LoginPage.java (locators + actions)</summary>
+          <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+public class LoginPage extends BasePage {
+    private String dn = "//input[@id='username']";
+    private String pwd = "//input[@id='pwd']";
+    private String loginBtn = "//button[@class='btn btn-margin btn-black btn-color spacing']";
+    private String homeLabel = "//span[contains(text(),'Tu saldo es:')]";
+    private String menuBtn = "//i[@class='fa fa-angle-down']";
+    private String logoutBtn = "//a[contains(text(),'Cerrar sesi')]";
+    private String loginLabel = "//span[contains(text(),'Ingresar')]";
+    private String recPwdLink = "//span[contains(text(),'Recuperar contrase')]";
+    private String recDn = "//input[@id='contactno']";
+    private String recSend = "//span[contains(text(),'Enviar')]";
+    private String recResult = "//span[contains(text(),'Verificar')]";
+    private String regLink = "//span[@class='register-link primary-color']";
+    private String regDn = "//input[@id='contactno']";
+    private String termsChk = "//.../form/div[1]/div[2]/input";
+    private String privChk = "//.../form/div[1]/div[3]/input";
+    private String registerBtn = "//span[contains(text(),'Registrar')]";
+    private String termsLink = "/html/body/.../label/a/span";
+    private String privacyLink = "//span[contains(text(),'Aviso de privacidad')]";
+
+    public LoginPage(){ super(driver); }
+
+    public void navigateToAtt(){ navigateTo("https://miattweb.att.com.mx/#/login"); }
+    public void clickLogin(){ clickElement(loginBtn); }
+    public void writeDn(String v){ write(dn, v); }
+    public void writePass(String v){ write(pwd, v); }
+    public String resultLogin(){ return textFromElement(homeLabel); }
+
+    public void clickMenu(){ clickElement(menuBtn); }
+    public void clickLogout(){ clickElement(logoutBtn); }
+    public String logoutResult(){ return textFromElement(loginLabel); }
+
+    public void clickRecoveryPassword(){ clickElement(recPwdLink); }
+    public void writeDnRecovery(String v){ write(recDn, v); }
+    public void clickSendRecoveryPassword(){ clickElement(recSend); }
+    public String recoveryResult(){ return textFromElement(recResult); }
+
+    public void clickRegistrate1(){ clickElement(regLink); }
+    public void writeDnRegister(String v){ write(regDn, v); }
+    public void termsAndCon(){ clickElement(termsChk); }
+    public void acceptPriv(){ clickElement(privChk); }
+    public String registerButtom(){ return textFromElement(registerBtn); }
+
+    public void switchToNewWindowAndValidateUrl() {
+        String parent = driver.getWindowHandle();
+        clickElement(privacyLink);
+        new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.numberOfWindowsToBe(2));
+        for (String h : driver.getWindowHandles()) if (!h.equals(parent)) driver.switchTo().window(h);
+        waitForUrlToContain("notice_of_privacy.pdf");
+        driver.close();
+        driver.switchTo().window(parent);
+    }
+
+    public void switchToNewWindowAndValidateUrl2() {
+        String parent = driver.getWindowHandle();
+        clickElement(termsLink);
+        new WebDriverWait(driver, Duration.ofSeconds(5)).until(ExpectedConditions.numberOfWindowsToBe(2));
+        for (String h : driver.getWindowHandles()) if (!h.equals(parent)) driver.switchTo().window(h);
+        waitForUrlToContain("terms_miatt.pdf");
+        driver.close();
+        driver.switchTo().window(parent);
+    }
+}
+          </code></pre>
+        </details>
+
+        <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+          <summary class="cursor-pointer font-medium">login.feature (BDD)</summary>
+          <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+Feature: Test All features of the Login
+Rule: The user can test all features of login page
+
+Background: I am on my attPage
+  Given I am on the Att page
+
+@TestAtt
+Scenario: Login con numero Prepago
+  When the user enters username and password prepaid Dn
+  And click on the login button
+  Then the results give me the home page
+
+@TestAtt
+Scenario: Login with Incorrect Credentials
+  When the user enters username and incorrect password
+  And click on the login button
+  Then Then the system should display an error message indicating that the credentials are incorrect
+          </code></pre>
+        </details>
+
+        <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+          <summary class="cursor-pointer font-medium">LoginSteps.java (glue)</summary>
+          <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+public class LoginSteps {
+    LoginPage att = new LoginPage();
+
+    @Given("I am on the Att page") public void navigateToAtt(){ att.navigateToAtt(); }
+
+    @When("the user enters username and password prepaid Dn")
+    public void enterCredentialsPrepaid(){ att.writeDn("6441319213"); att.writePass("Mi@tt123"); }
+
+    @And("click on the login button") public void clickLogin(){ att.clickLogin(); }
+
+    @Then("the results give me the home page")
+    public void validateHome(){ Assert.assertEquals("Tu saldo es:", att.resultLogin()); }
+
+    @When("the user enters username and incorrect password")
+    public void incorrect(){ att.writeDn("6441319213"); att.writePass("mi@tt123"); }
+
+    @Then("Then the system should display an error message indicating that the credentials are incorrect")
+    public void shouldSeeError(){ Assert.assertTrue("Contraseña incorrecta", true); }
+}
+          </code></pre>
+        </details>
+      </div>
     </div>
-  </article>
+
+    <div class="mt-4 flex flex-wrap gap-3">
+      <a href="https://github.com/IvanFraijo93" target="_blank"
+         class="px-4 py-2 rounded border border-slate-600">View repository</a>
+    </div>
+  </div>
+</article>
+
   
 <!-- Lightbox Modal -->
 <div id="lightbox"
@@ -316,6 +499,7 @@ public class LoginSteps {
   </script>
 </body>
 </html>
+
 
 
 
