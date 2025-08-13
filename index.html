@@ -424,7 +424,7 @@ public class LoginSteps {
     @Given("I am on the Att page") public void navigateToAtt(){ att.navigateToAtt(); }
 
     @When("the user enters username and password prepaid Dn")
-    public void enterCredentialsPrepaid(){ att.writeDn("6441319213"); att.writePass("Mi@tt123"); }
+    public void enterCredentialsPrepaid(){ att.writeDn("6441319213"); att.writePass("xxxxxx"); }
 
     @And("click on the login button") public void clickLogin(){ att.clickLogin(); }
 
@@ -432,7 +432,7 @@ public class LoginSteps {
     public void validateHome(){ Assert.assertEquals("Tu saldo es:", att.resultLogin()); }
 
     @When("the user enters username and incorrect password")
-    public void incorrect(){ att.writeDn("6441319213"); att.writePass("mi@tt123"); }
+    public void incorrect(){ att.writeDn("6441319213"); att.writePass("xxxxxx"); }
 
     @Then("Then the system should display an error message indicating that the credentials are incorrect")
     public void shouldSeeError(){ Assert.assertTrue("Contraseña incorrecta", true); }
@@ -499,6 +499,7 @@ public class LoginSteps {
   </script>
 </body>
 </html>
+
 
 
 
