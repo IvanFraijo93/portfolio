@@ -97,48 +97,170 @@
           </div>
         </div>
       </article>
+      <!-- Agrega más tarjetas similares -->
     </div>
+<!-- Deep-dive / Case Study -->
+<section id="case-studies" class="max-w-5xl mx-auto px-4 py-14">
+  <h2 class="text-2xl font-semibold">Case studies</h2>
 
-    <!-- ====== GALERÍA / LIGHTBOX (debajo de las dos tarjetas) ====== -->
-    <div class="mt-10">
-      <h3 class="text-lg font-medium mb-4">Screenshots</h3>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <!-- Miniatura 1 -->
-        <button type="button"
-          class="group relative overflow-hidden rounded-xl border border-slate-700 bg-slate-800"
-          data-full="images/Reporte1.png" aria-label="Open image 1">
-          <img src="images/Reporte1.png" alt="Login — phone number"
-              class="w-full h-44 object-cover transition group-hover:opacity-90">
-        </button>
-        <!-- Miniatura 2 -->
-        <button type="button"
-          class="group relative overflow-hidden rounded-xl border border-slate-700 bg-slate-800"
-          data-full="images/Reporte2.png" aria-label="Open image 2">
-          <img src="images/Reporte2.png" alt="Login — password"
-              class="w-full h-44 object-cover transition group-hover:opacity-90">
-        </button>
+  <!-- App Login Module -->
+  <article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
+    <div class="p-6">
+      <h3 class="text-xl font-semibold">App Automation — Login module</h3>
+      <p class="mt-3 text-slate-300">
+        Goal: validate the end-to-end login flow on Android (happy path + negative cases).
+        Design: BDD with Cucumber + Page Object Model. Common waits/actions live in <code>BasePage</code>,
+        locators & actions in <code>LoginPage</code>, behavior in Gherkin (<code>login.feature</code>), and glue/reporting in <code>LoginSteps</code>.
+      </p>
+
+      <div class="mt-6 grid md:grid-cols-2 gap-6">
+        <!-- Narrative -->
+        <div class="space-y-4 text-sm">
+          <div class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+            <h4 class="font-medium">What I implemented</h4>
+            <ul class="mt-2 list-disc list-inside space-y-1">
+              <li>Structured POM to isolate locators and actions from test logic.</li>
+              <li>Explicit waits centralized to reduce flakiness.</li>
+              <li>Readable scenarios in Gherkin (+ background to prep the app state).</li>
+              <li>Step logs for clear reporting; ready for CI and device/cloud runs.</li>
+            </ul>
+          </div>
+          <div class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+            <h4 class="font-medium">Key outcomes</h4>
+            <ul class="mt-2 list-disc list-inside space-y-1">
+              <li>Faster maintenance: UI changes contained to one page object.</li>
+              <li>Traceable, human-readable test intent via BDD.</li>
+              <li>Stable runs thanks to consistent waits and reusable helpers.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Code highlights -->
+        <div class="space-y-4 text-sm">
+          <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40" open>
+            <summary class="cursor-pointer font-medium">BasePage.java (shared actions)</summary>
+            <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+// minimal excerpt
+public class BasePage {
+              
+    protected AppiumDriver<MobileElement> driver;
+    protected WebDriverWait wait;
+    
+    public BasePage(AppiumDriver<MobileElement> driver) {
+        this.driver = driver;
+        this.wait = new WebDriverWait(driver, 10);
+    }
+    protected void click(By locator) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).click();
+    }
+    protected void writeText(By locator, String text) {
+        wait.until(ExpectedConditions.elementToBeClickable(locator)).sendKeys(text);
+    }
+            </code></pre>
+          </details>
+
+          <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+            <summary class="cursor-pointer font-medium">LoginPage.java (locators + actions)</summary>
+            <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+public class LoginPage extends BasePage {
+
+    private By saltarBtn = By.xpath("//android.view.ViewGroup//*[contains(@text,'Saltar')]");
+    private By phoneField = By.xpath("//android.widget.EditText[@content-desc='Campo seguro Número AT&T (10 dígitos)']");
+    private By passField = By.xpath("//android.widget.EditText[@content-desc='Campo seguro Ingresar tu contraseña']");
+    private By ingresarBtn = By.xpath("//android.view.ViewGroup[@content-desc='Botón Ingresar']");
+
+ public LoginPage(AppiumDriver<MobileElement> driver) {
+        super(driver);
+    }
+
+    public void clickSaltar() {
+        try {
+            if (isElementPresent(saltarBtn, 5)) {
+                click(saltarBtn);
+            }
+        } catch (Exception e) {
+            System.out.println("Botón 'Saltar' no presente. Continuando.");
+        }
+    }
+            </code></pre>
+          </details>
+
+          <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+            <summary class="cursor-pointer font-medium">login.feature (BDD)</summary>
+            <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+Feature: Login funcionalidad
+
+  Background:
+    Given que la app está abierta
+    When doy clic en el botón Saltar
+
+  Scenario: Login exitoso con credenciales válidas
+    When ingreso el número "6441319213"
+    And ingreso la contraseña "XXXXXXXX"
+    And doy clic en el botón Ingresar
+    Then debería ver la pantalla principal
+            </code></pre>
+          </details>
+
+          <details class="p-4 rounded-xl border border-slate-700 bg-slate-900/40">
+            <summary class="cursor-pointer font-medium">LoginSteps.java (glue + logs)</summary>
+            <pre class="mt-3 overflow-x-auto text-xs leading-relaxed"><code>
+public class LoginSteps {
+
+    AppiumDriver<MobileElement> driver = DriverFactory.getDriver();
+    LoginPage loginPage = new LoginPage(driver);
+
+    @Given("que la app está abierta")
+    public void que_la_app_esta_abierta() {
+        ExtentsReportsDemo.test.log(Status.INFO, "App inicializada correctamente");
+    }
+
+    @When("doy clic en el botón Saltar")
+    public void doy_clic_en_el_boton_saltar() {
+        loginPage.clickSaltar();
+        ExtentsReportsDemo.test.log(Status.PASS, "Botón 'Saltar' clickeado correctamente (si estaba presente)");
+    }
+            </code></pre>
+          </details>
+        </div>
+      </div>
+
+      <div class="mt-4 flex flex-wrap gap-3">
+        <a href="#" class="px-4 py-2 rounded bg-indigo-500 text-white hover:bg-indigo-600">Demo</a>
+        <a href="https://github.com/IvanFraijo93" target="_blank" class="px-4 py-2 rounded border border-slate-600">
+          View repository
+        </a>
       </div>
     </div>
-    <!-- ====== FIN GALERÍA ====== -->
+  </article>
 
+  <!-- Web module (placeholder to fill later) -->
+  <article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
+    <div class="p-6">
+      <h3 class="text-xl font-semibold">Web Automation — Login module (coming next)</h3>
+      <p class="mt-3 text-slate-300">
+        The same structure applied to web UI: POM for pages, readable Gherkin scenarios, and shared waits/actions
+        to keep tests stable and maintainable. I’ll add highlights (HomePage, LoginPage, step glue, and assertions).
+      </p>
+    </div>
+  </article>
+</section>
+
+
+
+    
   </section>
 
-  <!-- Deep-dive / Case Study -->
-  <section id="case-studies" class="max-w-5xl mx-auto px-4 py-14">
-    <h2 class="text-2xl font-semibold">Case studies</h2>
+  <footer class="text-center text-sm text-slate-500 py-6">© 2025 Ivan Fraijo</footer>
 
-    <!-- App Login Module -->
-    <article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
-      <div class="p-6">
-        <h3 class="text-xl font-semibold">App Automation — Login module</h3>
-        <p class="mt-3 text-slate-300">
-          Goal: validate the end-to-end login flow on Android (happy path + negative cases).
-          Design: BDD with Cucumber + Page Object Model. Commo
+  <script>
+    const btn = document.getElementById('menuBtn');
+    const menu = document.getElementById('menuMobile');
+    btn?.addEventListener('click', () => menu.classList.toggle('hidden'));
+  </script>
+</body>
 
-
-
-
-
+</html>
 
 
 
