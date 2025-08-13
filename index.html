@@ -261,7 +261,7 @@ public class LoginSteps {
       </div>
     </div>
   </article>
-<script>
+
 
   <!-- Web module (placeholder to fill later) -->
   <article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
@@ -285,53 +285,44 @@ public class LoginSteps {
   <img id="lightboxImg" src="" alt="" class="max-h-[90vh] max-w-[90vw] rounded-lg shadow-2xl">
 </div>
 
-            <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // Menú móvil
-  const btn = document.getElementById('menuBtn');
-  const menu = document.getElementById('menuMobile');
-  btn?.addEventListener('click', () => menu.classList.toggle('hidden'));
-
-  // Lightbox
-  const overlay  = document.getElementById('lightbox');
-  const lightImg = document.getElementById('lightboxImg');
-  const closeBtn = document.getElementById('lightboxClose');
-
-  // Añade cursor “zoom-in” para indicar que es clicable
-  document.querySelectorAll('[data-full]').forEach(el => {
-    el.classList.add('cursor-zoom-in');
-    el.addEventListener('click', () => {
-      if (!overlay) return;
-      lightImg.src = el.getAttribute('data-full') || '';
-      lightImg.alt = el.querySelector('img')?.alt || '';
-      overlay.classList.remove('hidden');
-    });
-  });
-
-  const closeLightbox = () => {
-    overlay.classList.add('hidden');
-    lightImg.src = '';
-    lightImg.alt = '';
-  };
-
-  closeBtn?.addEventListener('click', closeLightbox);
-  overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeLightbox(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
-});
-</script>
-
-
   <footer class="text-center text-sm text-slate-500 py-6">© 2025 Ivan Fraijo</footer>
 
+<!-- ÚNICO SCRIPT -->
   <script>
-    const btn = document.getElementById('menuBtn');
-    const menu = document.getElementById('menuMobile');
-    btn?.addEventListener('click', () => menu.classList.toggle('hidden'));
+    document.addEventListener('DOMContentLoaded', () => {
+      // Menú móvil
+      const btn = document.getElementById('menuBtn');
+      const menu = document.getElementById('menuMobile');
+      btn?.addEventListener('click', () => menu.classList.toggle('hidden'));
+
+      // Lightbox
+      const overlay  = document.getElementById('lightbox');
+      const lightImg = document.getElementById('lightboxImg');
+      const closeBtn = document.getElementById('lightboxClose');
+
+      document.querySelectorAll('[data-full]').forEach(el => {
+        el.classList.add('cursor-zoom-in');
+        el.addEventListener('click', () => {
+          if (!overlay) return;
+          lightImg.src = el.getAttribute('data-full') || '';
+          lightImg.alt = el.querySelector('img')?.alt || '';
+          overlay.classList.remove('hidden');
+        });
+      });
+
+      const closeLightbox = () => {
+        overlay.classList.add('hidden');
+        lightImg.src = '';
+        lightImg.alt = '';
+      };
+
+      closeBtn?.addEventListener('click', closeLightbox);
+      overlay?.addEventListener('click', (e) => { if (e.target === overlay) closeLightbox(); });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
+    });
   </script>
 </body>
-
 </html>
-
 
 
 
