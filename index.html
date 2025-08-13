@@ -262,27 +262,6 @@ public class LoginSteps {
     </div>
   </article>
 <script>
-  
-  // Lightbox
-  const overlay = document.getElementById('lightbox');
-  const lightImg = document.getElementById('lightboxImg');
-  const closeBtn = document.getElementById('lightboxClose');
-
-  document.querySelectorAll('[data-full]').forEach(el => {
-    el.addEventListener('click', () => {
-      const src = el.getAttribute('data-full');
-      const alt = el.querySelector('img')?.alt || '';
-      lightImg.src = src;
-      lightImg.alt = alt;
-      overlay.classList.remove('hidden');
-    });
-  });
-
-  const closeLightbox = () => overlay.classList.add('hidden');
-  closeBtn.addEventListener('click', closeLightbox);
-  overlay.addEventListener('click', (e) => { if (e.target === overlay) closeLightbox(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeLightbox(); });
-</script>
 
   <!-- Web module (placeholder to fill later) -->
   <article class="mt-6 border border-slate-700 rounded-2xl bg-slate-800">
@@ -317,5 +296,6 @@ public class LoginSteps {
 </body>
 
 </html>
+
 
 
