@@ -108,9 +108,9 @@
     <div class="p-6">
       <h3 class="text-xl font-semibold">App Automation — Login module</h3>
       <p class="mt-3 text-slate-300">
-        Goal: validate the end-to-end login flow on Android (happy path + negative cases).
+        Goal: validate user-accessible flows on Android (happy path + negative cases).
         Design: BDD with Cucumber + Page Object Model. Common waits/actions live in <code>BasePage</code>,
-        locators & actions in <code>LoginPage</code>, behavior in Gherkin (<code>login.feature</code>), and glue/reporting in <code>LoginSteps</code>.
+        locators & actions in <code>LoginPage</code>, behavior in Gherkin and reporting in <code>LoginSteps</code>.
       </p>
 
       <div class="mt-6 grid md:grid-cols-2 gap-6">
@@ -261,7 +261,7 @@ public class LoginSteps {
   <div class="p-6">
     <h3 class="text-xl font-semibold">Web Automation — Login module</h3>
     <p class="mt-3 text-slate-300">
-      Goal: validate login features on the web portal (prepaid, postpaid, incorrect credentials, logout, recovery,
+      Goal: validate user-accessible flows on the web portal (prepaid, postpaid, incorrect credentials, logout, recovery,
       registration, and legal links). Design: Selenium + POM + Cucumber. We centralize waits/actions in
       <code>BasePage</code>, keep locators &amp; actions in <code>LoginPage</code>, describe behavior in
       Gherkin (<code>login.feature</code>), and glue with <code>LoginSteps</code>. Includes window handling for
@@ -499,6 +499,7 @@ public class LoginSteps {
   </script>
 </body>
 </html>
+
 
 
 
